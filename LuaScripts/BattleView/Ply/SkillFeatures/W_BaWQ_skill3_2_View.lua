@@ -1,0 +1,5 @@
+---@class W_BaWQ_skill3_2_View : SkillFeatures_View
+---@field super SkillFeatures_View
+local M = class("W_BaWQ_skill3_2_View", require("BattleView.Ply.SkillFeatures.W_BaWQ_skill3_1_View"))
+
+return M

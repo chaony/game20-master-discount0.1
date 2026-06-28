@@ -1,0 +1,25 @@
+return {
+	[801]={
+		["param"]={
+			[1]={
+				1536,
+				307,
+			},
+			[2]={
+				10,
+			},
+		},
+		["name"]={
+			[1]="tid#SkillName_80161",
+			[2]="tid#SkillName_80171",
+		},
+		["icon"]={
+			[1]="JN_tianxiahui1",
+			[2]="JN_taishan3",
+		},
+		["des"]={
+			[1]="tid#SkillDes_80161",
+			[2]="tid#SkillDes_80171",
+		},
+	},
+}

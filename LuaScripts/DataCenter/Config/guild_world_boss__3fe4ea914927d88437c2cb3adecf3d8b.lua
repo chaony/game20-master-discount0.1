@@ -1,0 +1,26 @@
+return {
+	[1]={
+		["battle_id"]=991001001,
+		["des"]="tid#WorldBossCycle_1",
+		["atk_add"]=300,
+		["def_add"]=0,
+		["warning_icon"]=1,
+		["warning_name"]="tid#WorldBossCycleAlert_1",
+		["warning"]="tid#WorldBossCycleAlertDes_1",
+		["buff_icon"]="boss_buff01",
+		["buff_des"]="tid#WorldBossBuff_1",
+		["boss_icon"]="a_sjbs_bosstouxiang",
+	},
+	[2]={
+		["battle_id"]=991001001,
+		["des"]="tid#WorldBossCycle_1",
+		["atk_add"]=300,
+		["def_add"]=0,
+		["warning_icon"]=1,
+		["warning_name"]="tid#WorldBossCycleAlert_1",
+		["warning"]="tid#WorldBossCycleAlertDes_1",
+		["buff_icon"]="boss_buff01",
+		["buff_des"]="tid#WorldBossBuff_1",
+		["boss_icon"]="a_sjbs_bosstouxiang",
+	},
+}

@@ -1,0 +1,23 @@
+return {
+	[1]={
+		["des"]="tid#Auction_type_1",
+	},
+	[2]={
+		["des"]="tid#Auction_type_2",
+	},
+	[3]={
+		["des"]="tid#Auction_type_3",
+	},
+	[4]={
+		["des"]="tid#Auction_type_4",
+	},
+	[5]={
+		["des"]="tid#Auction_type_5",
+	},
+	[6]={
+		["des"]="tid#Auction_type_6",
+	},
+	[7]={
+		["des"]="tid#Auction_type_7",
+	},
+}

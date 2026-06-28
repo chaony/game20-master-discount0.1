@@ -1,0 +1,19 @@
+return {
+	[340]={
+		[1]={
+			["hero_id"]=703,
+			["main_bg"]="a_qlxs_bg",
+			["raccoon_active_des"]="tid#XiaoHuanXiongDes_2",
+		},
+		[2]={
+			["hero_id"]=704,
+			["main_bg"]="a_qlxs_bg",
+			["raccoon_active_des"]="tid#XiaoHuanXiongDes_7",
+		},
+		[3]={
+			["hero_id"]=708,
+			["main_bg"]="a_qlxs_bg",
+			["raccoon_active_des"]="tid#XiaoHuanXiongDes_11",
+		},
+	},
+}

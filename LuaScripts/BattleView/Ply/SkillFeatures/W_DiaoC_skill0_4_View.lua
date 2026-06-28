@@ -1,0 +1,5 @@
+---@class W_DiaoC_skill0_4_View : SkillFeatures_View
+---@field super SkillFeatures_View
+local M = class("W_DiaoC_skill0_4_View", SkillFeatures_View)
+
+return M

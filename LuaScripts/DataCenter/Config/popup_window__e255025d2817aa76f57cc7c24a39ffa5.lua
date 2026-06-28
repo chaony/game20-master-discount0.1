@@ -1,0 +1,26 @@
+return {
+	[1]={
+		["hero_id"]=603,
+		["title"]="高级战令",
+		["des"]="tid#popupWindowDes1",
+		["des2"]="tid#DDLWindowDes1",
+	},
+	[2]={
+		["hero_id"]=603,
+		["title"]="超值基金",
+		["des"]="tid#popupWindowDes2",
+		["des2"]="tid#DDLWindowDes2",
+	},
+	[3]={
+		["hero_id"]=603,
+		["title"]="豪华基金",
+		["des"]="tid#popupWindowDes3",
+		["des2"]="tid#DDLWindowDes3",
+	},
+	[4]={
+		["hero_id"]=603,
+		["title"]="成长基金",
+		["des"]="tid#popupWindowDes4",
+		["des2"]="",
+	},
+}

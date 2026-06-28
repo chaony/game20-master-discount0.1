@@ -1,0 +1,19 @@
+return {
+	[1]={
+		[1]={
+			["return_per"]=0.5,
+			["rebate_percent"]=0.05,
+			["mail_id"]=255,
+		},
+		[2]={
+			["return_per"]=0.3,
+			["rebate_percent"]=0.05,
+			["mail_id"]=256,
+		},
+		[3]={
+			["return_per"]=0.2,
+			["rebate_percent"]=0.05,
+			["mail_id"]=257,
+		},
+	},
+}

@@ -1,0 +1,26 @@
+return {
+	[1]={
+		["name"]="锦绣江湖",
+		["ways"]="出生获得",
+		["small_img"]="main_bg_small",
+		["big_img"]="main_bg",
+		["is_free"]=1,
+		["desc"]="新手免费赠送",
+	},
+	[2]={
+		["name"]="江河无恙",
+		["ways"]="植树节主题活动获得",
+		["small_img"]="main_bg2_small",
+		["big_img"]="main_bg2",
+		["is_free"]=0,
+		["desc"]="植树节主题活动获得，变更主页背景",
+	},
+	[3]={
+		["name"]="月影观花",
+		["ways"]="中秋节主题活动获得",
+		["small_img"]="main_bg3_small",
+		["big_img"]="main_bg3",
+		["is_free"]=0,
+		["desc"]="中秋节主题活动获得，变更主页背景",
+	},
+}

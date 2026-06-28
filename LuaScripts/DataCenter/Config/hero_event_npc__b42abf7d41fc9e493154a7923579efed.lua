@@ -1,0 +1,20 @@
+return {
+	[1]={
+		["hero_id"]=715,
+		["hero_lv"]={
+			300,
+		},
+		["hero_evo"]={
+			18,
+		},
+		["equip_heroes_lv"]={
+			0,
+		},
+		["equip_evo"]={
+			4,
+		},
+		["equip_lv"]={
+			2,
+		},
+	},
+}

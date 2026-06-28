@@ -1,0 +1,22 @@
+return {
+	[1]={
+		["head"]="a_xs_head_607",
+		["des"]="tid#kingsoft_talk_001",
+	},
+	[2]={
+		["head"]="a_xs_head_607",
+		["des"]="tid#kingsoft_talk_002",
+	},
+	[3]={
+		["head"]="a_xs_head_607",
+		["des"]="tid#kingsoft_talk_003",
+	},
+	[4]={
+		["head"]="a_xs_head_607",
+		["des"]="tid#kingsoft_talk_004",
+	},
+	[5]={
+		["head"]="a_xs_head_607",
+		["des"]="tid#kingsoft_talk_005",
+	},
+}

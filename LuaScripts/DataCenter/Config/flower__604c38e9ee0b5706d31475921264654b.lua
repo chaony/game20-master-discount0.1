@@ -1,0 +1,27 @@
+return {
+	[1]={
+		["mail_id1"]=86,
+		["mail_id2"]=87,
+		["des"]="tid#FlowerDes_1",
+	},
+	[2]={
+		["mail_id1"]=86,
+		["mail_id2"]=87,
+		["des"]="tid#FlowerDes_1",
+	},
+	[3]={
+		["mail_id1"]=86,
+		["mail_id2"]=87,
+		["des"]="tid#FlowerDes_2",
+	},
+	[4]={
+		["mail_id1"]=86,
+		["mail_id2"]=87,
+		["des"]="tid#FlowerDes_3",
+	},
+	[5]={
+		["mail_id1"]=183,
+		["mail_id2"]=182,
+		["des"]="tid#FlowerDes_4",
+	},
+}

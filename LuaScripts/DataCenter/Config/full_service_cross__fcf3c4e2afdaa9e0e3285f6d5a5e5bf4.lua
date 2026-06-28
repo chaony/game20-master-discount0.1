@@ -1,0 +1,20 @@
+return {
+	[1]={
+		["cross_superior"]=999,
+		["cross_lower"]=9,
+		["heaven"]=32,
+		["earth"]=32,
+	},
+	[2]={
+		["cross_superior"]=8,
+		["cross_lower"]=2,
+		["heaven"]=32,
+		["earth"]=32,
+	},
+	[3]={
+		["cross_superior"]=1,
+		["cross_lower"]=0,
+		["heaven"]=32,
+		["earth"]=32,
+	},
+}
