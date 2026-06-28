@@ -1,0 +1,161 @@
+---@class DeliciousFeastExchangeView: OOPopBase
+---@field m_model DragonBoatExchangeModel
+local M = class("DragonBoatExchangeView",LikeOO.OOPopBase)
+
+M.m_uiName = "Activities/DragonBoat/DragonBoatExchange"
+M.m_size_type = 1
+M.m_iphoneXAdapter = true
+
+function M:onEnter()
+    self:setTextByLanKey("close_title_text", self.m_model.active_data.name)
+    self.m_gray_img = self:findImage("gray_img")
+    --local isOfficial = self.m_model:checkIsOfficial()
+    --local spine_name = self.m_model:getSpineName()
+    local spine_img
+    --if isOfficial then
+    --    spine_img = self:findGameObject("meituan_spine")
+    --    GameUtil:updateSpineLoadSet(spine_img,"RoleSpine/" .. spine_name.meituan,"idle", 0,true)
+    --else
+    --    spine_img = self:findGameObject("hero_spine")
+    --    GameUtil:updateSpineLoadSet(spine_img,"RoleSpine/" .. spine_name.xian,"idle", 0,true)
+    --end
+   
+    self:refreshUI()
+end
+
+function M:refreshUI()
+    self.m_version = self.m_model.m_version
+    self:updateTime()
+    self:createLoopScroll()
+end
+
+--[[
+    创建礼包列表
+]]
+function M:createLoopScroll()
+    local data = self.m_model:get_exchange_limit_cfg(self.m_version)
+    if self.m_scroll_view == nil then
+        local loopscroll = self:findGameObject("loopscroll")
+        local params = {
+            show_data = data,
+            loop_scroll_object = loopscroll,
+            update_cell = function(index, cell_obj, cell_data)
+                self:updateRewardItem(cell_obj, cell_data)
+            end,
+            click_func = function(index, cell_object, cell_data, click_object, click_name) -- 点击回调
+                if self.m_model:getEndTs() < 0  then
+                    GameUtil:lookInfoTips(static_rootControl, {msg = Language:getTextByKey("new_str_0558"), delay_close = 2})
+                    return
+                end
+                local satisfy_bl = false --满足要求
+                for k,v in pairs(cell_data.need_reward) do
+                    local need_data = RewardUtil:getProcessRewardData(v)
+                    if need_data.data_num > need_data.user_num then--道具不足 
+                        satisfy_bl = true --不满足要求
+                    end
+                end
+
+                local need_data = RewardUtil:getProcessRewardData(cell_data.need_reward[1])
+                local data = self.m_model:getExchangeData(cell_data.id)
+                local num = cell_data.times - data
+                if cell_data.times > 0 and num <= 0 then
+                    GameUtil:lookInfoTips(static_rootControl, {msg = Language:getTextByKey("new_str_0761"), delay_close = 2})
+                    return
+                end
+                if satisfy_bl == true then--道具不足
+                    GameUtil:lookInfoTips(static_rootControl, {msg = Language:getTextByKey("compass_str_002"), delay_close = 2})
+                    return
+                end
+                local out_data = RewardUtil:getProcessRewardData(cell_data.out_reward[1])
+                local params = {
+                    text = Language:getTextByKey("gf_str_0138", out_data.name).."?",
+                    on_ok_call = function ()
+                        self:updateMsg("eat_exchange",{id = cell_data.id, version = self.m_version})
+                    end
+                }
+                self.m_control:openView("Pops.CommonPop", params)
+
+            end
+        }
+        self.m_scroll_view = LoopScrollViewUtil.new(params)
+    else
+        self.m_scroll_view:reloadData(data, true)
+    end
+end
+
+function M:updateRewardItem(obj, cfg)
+    local LuaBehaviour = UIUtil.findLuaBehaviour(obj)
+    if LuaBehaviour then
+        local left_node = LuaBehaviour:FindGameObject("left_node")
+        local right_node = LuaBehaviour:FindGameObject("right_node")
+        local reward_btn = LuaBehaviour:FindImage("reward_btn")
+        local data = self.m_model:getExchangeData(cfg.id)
+        local can_change = true
+        local num = cfg.times - data
+        self:createRewards(left_node.transform, cfg.need_reward, true)
+        self:createRewards(right_node.transform, cfg.out_reward, false)
+        LuaBehaviourUtil.setTextByLanKey(LuaBehaviour, "limit_times", Language:getTextByKey("union_str_0014")..num)
+        if cfg.times == 0 then
+            LuaBehaviourUtil.setTextByLanKey(LuaBehaviour, "limit_times", Language:getTextByKey("gf_str_0105"))
+        else
+            LuaBehaviourUtil.setTextByLanKey(LuaBehaviour, "limit_times", Language:getTextByKey("union_str_0014")..num)
+        end
+        for k,v in ipairs(cfg.need_reward) do
+            local need_data = RewardUtil:getProcessRewardData(v)
+            if need_data.data_num > need_data.user_num then--道具不足
+                can_change = false
+            else
+                if cfg.times > 0 and num <= 0 then
+                    can_change = false
+                end
+            end
+        end
+        if can_change == false then
+            reward_btn.material = self.m_gray_img.material
+        else
+            reward_btn.material = nil
+        end
+        if cfg.times > 0 and num <= 0 then
+            LuaBehaviourUtil.setObjectVisible(LuaBehaviour, "maxk_img", true)
+        else
+            LuaBehaviourUtil.setObjectVisible(LuaBehaviour, "maxk_img", false)
+        end
+    end
+end
+
+function M:createRewards(reward_node, rewards, show_bl)
+    UIUtil.destroyAllChild(reward_node)
+    for k, v in pairs(rewards) do
+        local item = GameUtil:createItemElement(v,true, true)
+        item.transform:SetParent(reward_node, false)
+        local LuaBehaviour = UIUtil.findLuaBehaviour(item)
+        local data = RewardUtil:getProcessRewardData(v)
+        local num_text = LuaBehaviour:FindText("count_text")
+        if show_bl == true then
+            if data.data_num > data.user_num then
+                num_text.text = "<color=#F33535>".. data.user_num.."</color>/<color=#FFFFFF>"..data.data_num.."</color>"
+            else
+                num_text.text = "<color=#FFFFFF>".. data.user_num.."/"..data.data_num.."</color>"
+            end
+        end
+    end
+end
+
+
+function M:updateTime()
+    local end_ts = self.m_model:getEndTs()
+    if end_ts >= 0 then
+        local text = GameUtil:formatTimeBySecond(end_ts)
+        text = Language:getTextByKey("new_str_0919") .. text
+        self:setTextByLanKey("time_text", text)
+    else
+        self:setTextByLanKey("time_text", "new_str_0558")
+    end
+end
+
+function M:destroy()
+    self.m_control:updateMsg("refreshRedPoint", nil, "Activities.DeliciousFeast.DeliciousFeastMain")
+    M.super.destroy(self)
+end
+
+return M

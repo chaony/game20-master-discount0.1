@@ -1,0 +1,171 @@
+local M = class("LadderGiftNode", LikeOO.OOUIbase)
+--超值礼包
+M.m_uiName = "OperateActivity/LadderGiftNode"
+
+function M:onEnter()
+    self.m_end_ts = 0
+    self.time_down = self:findText("time_down")
+    self:setTextByLanKey("des_text", "castingSword_str_0028")
+    self:setObjectVisible("title_text", false)
+    self:showUI(false)
+end  
+  
+function M:switchInit(url, data, id, callback)
+    local function callFunc(callbackData)
+        if callback then
+            callback(callbackData)
+        end
+        self.m_end_ts = self.m_model:getActiveEndTime(callbackData.actives)
+        local active_cfg = self.m_model:getActiveCfg(callbackData.actives)
+        self.m_version = 1
+        if active_cfg then
+            self.m_version = active_cfg.version
+            self:setTextByLanKey("title_text", active_cfg.name_2)
+        end
+        self:setObjectVisible("title_text", true)
+        self:refreshUI(data)
+    end
+    self.m_model:initData(url, callFunc)
+end
+
+function M:switchUI(data, id)
+    if self.m_model.m_ladder_actives == nil then
+        return
+    end
+    local cur_id = nil
+    if data == 259 then
+        cur_id = id
+    end
+    self.m_end_ts = self.m_model:getActiveEndTime(self.m_model.m_ladder_actives, cur_id)
+    local active_cfg = self.m_model:getActiveCfg(self.m_model.m_ladder_actives, cur_id)
+    if active_cfg then
+        self.m_version = active_cfg.version
+    else
+        self.m_version = 1
+    end
+    self:setTextByLanKey("title_text", active_cfg.name_2)
+    self:setObjectVisible("title_text", true)
+
+    self:refreshUI(data)
+end
+
+function M:refreshUI(open_Id)
+    if self.m_model.m_ladder_data == nil or self.m_version == nil then
+        return
+    end
+    if not self.m_open_id and open_Id then
+        self.m_open_id = open_Id
+    end
+    self.m_control:updateTime()
+    self:createLoopScroll()
+    self:setSpine(open_Id)
+    self:showUI(true)
+end
+
+function M:createLoopScroll()
+    self.m_gift_tab = {}
+    local data = self.m_model:get_ladderGiftData(self.m_version, self.m_open_id)
+    if self.m_scroll_view == nil then
+        local loopscroll = self:findGameObject("loopscroll")
+        local params ={
+            show_data = data,
+            loop_scroll_object = loopscroll,
+            update_cell =function(index, cell_obj, cell_data)
+                self.m_gift_tab[index] = cell_obj
+                self:updateCell(cell_obj, cell_data)
+            end,
+            click_func = function(index, cell_object, cell_data, click_object, click_name)
+                if self.m_end_ts > 0 and self.m_model:checkActiveIsEnd(self.m_end_ts) == false then
+                        self:updateMsg("buy_sdk_update")
+                    return
+                end
+                local cfg = cell_data.xlsxData
+                if cfg.price == 0 then
+                    local msg_name = "get_free_ladder_gift"
+                    if self.m_open_id == 259 then
+                        msg_name =  "get_free_mould_ladder_gift"
+                    end
+                    self:updateMsg(msg_name, {vsn = self.m_version, id = cfg.id, open_id = self.m_open_id, place= cell_data.index} )
+                else
+                    self:updateMsg("buy", cell_data.xlsxData.charge_id)
+                end
+            end
+        }
+        self.m_scroll_view = LoopScrollViewUtil.new(params)
+    else
+        self.m_scroll_view:reloadData(data, true)
+    end
+end
+
+function M:updateCell(obj, data)
+    local luaBehaviour = UIUtil.findLuaBehaviour(obj)
+    local cfg = data.xlsxData
+    if luaBehaviour then
+        local name_text = luaBehaviour:FindText("cell_title_text")
+        name_text.text = Language:getTextByKey(cfg.gift_name)
+        local buy_btn_text = luaBehaviour:FindText("buy_btn_text")
+        if cfg.price == 0 then
+            buy_btn_text.text = Language:getTextByKey("new_str_0278")
+        else
+            buy_btn_text.text = GameUtil:getMoneyTypeNum(cfg.price)
+        end
+        local return_per_text = luaBehaviour:FindText("return_per_text")
+        if return_per_text then
+            return_per_text.text = GameUtil:formatNum(cfg.return_per * 100) .. "%"
+        end
+        local parent = luaBehaviour:FindGameObject("itemParent")
+        UIUtil.destroyAllChild(parent.transform)
+        local rewards = GameUtil:createGiftRewards(parent.transform, cfg.reward, true, true, nil)
+        -- isCanBuy 展示上一礼包
+        if not data.isCanBuy then
+            LuaBehaviourUtil.setObjectVisible(luaBehaviour, "buy_btn", false)
+            LuaBehaviourUtil.setObjectVisible(luaBehaviour, "sellout_text", true)
+            for k,v in pairs(rewards) do
+                local reward_luaBehaviour = UIUtil.findLuaBehaviour(v)
+                if reward_luaBehaviour then
+                    LuaBehaviourUtil.setObjectVisible(reward_luaBehaviour, "duigoudi_img", true)
+                end
+            end
+        else
+            LuaBehaviourUtil.setObjectVisible(luaBehaviour, "buy_btn", true)
+            LuaBehaviourUtil.setObjectVisible(luaBehaviour, "sellout_text", false)
+        end
+        if cfg.time_limit == 0 then
+            LuaBehaviourUtil.setTextByLanKey(luaBehaviour, "buy_limit_text", "gf_str_0105")
+        else
+            local residueCount = (cfg.time_limit-data.buyCount)
+            residueCount = data.isCanBuy and residueCount or 0
+            LuaBehaviourUtil.setTextByLanKey(luaBehaviour, "buy_limit_text", "gf_str_0050", residueCount)
+        end
+    end
+end
+
+function M:setSpine(open_Id)
+    local tempActivityData = self.m_control:getTagCfg(open_Id)
+    if (not tempActivityData) or (not tempActivityData.heroId) then
+        return
+    end
+    local cfg = UserDataManager.hero_data:getHeroConfigByCid(tempActivityData.heroId)
+    if cfg then
+        local icon = cfg.hero_spine
+        if self.cacheSpineName == icon then
+            return
+        else
+            self.cacheSpineName = icon
+        end
+        local play_img = self:findGameObject("hero_spine")
+        GameUtil:updateSpineLoadSet(play_img, "RoleSpine/"..self.cacheSpineName, "idle", 0, true)
+    end
+end
+
+
+function M:showUI(bl)
+    self:setObjectVisible("hero_spine", bl)
+end
+
+function M:destroy()
+    M.super.destroy(self)
+end
+return M
+
+ 

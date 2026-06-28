@@ -1,0 +1,14 @@
+local M = class("ExclusiveHintPopView",LikeOO.OOPopBase)
+
+M.m_uiName = "ExclusiveWeapons/ExclusiveHintPop"
+M.m_size_type = 2
+function M:onEnter()
+	
+end
+
+function M:refreshUI()
+
+end
+
+
+return M

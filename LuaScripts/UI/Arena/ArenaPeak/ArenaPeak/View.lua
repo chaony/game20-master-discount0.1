@@ -1,0 +1,554 @@
+---@class ArenaPeakView:OOPopBase
+---@field m_model ArenaPeakModel
+local M = class("ArenaPeakView",LikeOO.OOPopBase)
+
+M.m_uiName = "Arena/ArenaPeak/ArenaPeakPop1"
+M.m_size_type = 1
+M.m_iphoneXAdapter = true
+
+function M:onEnter()
+	self.m_attr_node = GameUtil:commonAttrNode(self.m_control, {mode = 55})
+	--self.m_attr_node:setTitle(Language:getTextByKey("tid#arena_explain7"))
+
+	self:setTextByLanKey("list_title_text", "arena_str_0008")
+	self:setTextByLanKey("record_btn_text", "new_str_0233")
+	self:setTextByLanKey("def_btn_text", "new_str_0234")
+	self:setTextByLanKey("rank_btn_text", "new_str_0235")
+	self:setTextByLanKey("reward_btn_text", "new_str_0224")
+	self:setTextByLanKey("own_rank_title_text", "new_str_0077")
+	self:setTextByLanKey("refresh_btn_text", "union_str_1035")
+	self:setTextByLanKey("challenge_btn_text", "new_str_0386")
+	self:setTextByLanKey("rank_first_score_title_text", "new_str_0375")
+	self:setTextByLanKey("own_power_title_text", "friend_str_0041")
+	self:setTextByLanKey("score_title_text", "new_str_0566")
+	self:setTextByLanKey("rank_title_text", "new_str_0567")
+	self:setTextByLanKey("free_challenge_title_text", "new_str_0565")
+	self:setTextByLanKey("room_title_text", "new_str_0688")
+	self:setTextByLanKey("time_titile_text", "new_str_1058")
+	self:setTextByLanKey("shop_btn_text", "new_str_0861")
+	self.self_arena_node = self:findGameObject("self_arena_node")
+	self.m_box_node = self:findGameObject("box_node")
+	self.m_box_node_rt = UIUtil.findRectTransform(self.m_box_node)
+	self.m_week_box_reward_slider = self:findSlider("week_box_reward_slider")
+	self.m_gray_img = self:findImage("gray_img")
+	self.m_time_text = self:findText("time_text")
+	self.m_timer_times_text = self:findText("timer_times_text")
+	self.m_first_hero_sp=self:findGameObject("first_hero_sp").transform
+
+	--人，黄，玄，地，天12345
+	self.race_icon={
+		[1]={name_icon="ljsz_zfls_name1",badge_icon="ljsz_zfls_badge_ren"},
+		[2]={name_icon="ljsz_zfls_name2",badge_icon="ljsz_zfls_badge_huang"},
+		[3]={name_icon="ljsz_zfls_name3",badge_icon="ljsz_zfls_badge_xuan"},
+		[4]={name_icon="ljsz_zfls_name4",badge_icon="ljsz_zfls_badge_di"},
+		[5]={name_icon="ljsz_zfls_name5",badge_icon="ljsz_zfls_badge_tian"},
+	}
+	self:initUi()
+	self:refreshUI()
+	self:updateRankBg()
+
+	UserDataManager:removeRedDotByKey("race_arena")
+	self.limit_icon_trans=self:findGameObject("limit_icon").transform
+	self:setImg(  self.m_model.m_limit_cfg.rule_icon,"arena_ui","limit_icon")
+end
+
+function M:initUi()
+	--local extra_ui_name = ""
+	local extra_ui_name = "top_"
+	--if self.m_model.m_rise_id == 1 then
+	--	extra_ui_name = "top_"
+	--	--self:setTextByLanKey("close_title_text", "arena_str_0015")
+	--else
+	--	--self:setTextByLanKey("close_title_text", "arena_str_0014")
+	--end
+	self:setTextByLanKey("close_title_text", "arena_str_0050")
+	--排名1 2 3 的格子 
+	self.m_frist_rank = self:findGameObject(extra_ui_name .. "frist_rank"):GetComponent("LuaBehaviour");
+	self.m_second_rank = self:findGameObject(extra_ui_name .. "second_rank"):GetComponent("LuaBehaviour")
+	self.m_third_rank = self:findGameObject(extra_ui_name .. "third_rank"):GetComponent("LuaBehaviour")
+	self:setObjectVisible(extra_ui_name .. "frist_rank", true)
+	self:setObjectVisible(extra_ui_name .. "second_rank", true)
+	self:setObjectVisible(extra_ui_name .. "third_rank", true)
+	self.m_rank_behaviour = {
+		[1] = self.m_frist_rank,
+		[2] = self.m_second_rank,
+		[3] = self.m_third_rank,
+	}
+	self.m_good1 = self.m_rank_behaviour[1]:FindGameObject(extra_ui_name .. "good1")
+	self.m_good2 = self.m_rank_behaviour[2]:FindGameObject(extra_ui_name .. "good2")
+	self.m_good3 = self.m_rank_behaviour[3]:FindGameObject(extra_ui_name .. "good3")
+	self.m_good_list = {
+		[1] = self.m_good1,
+		[2] = self.m_good2,
+		[3] = self.m_good3,
+	}
+	for i = 1,3 do
+		LuaBehaviourUtil.setObjectVisible(self.m_rank_behaviour[i], "good_red_point_"..i,  RedPointUtil:hasRedPointById(47201) == true)
+	end
+
+	self:setImg("ljsz_zfls_name"..self.m_model.m_rise_id,ResourceUtil:getLanAtlas(),"race_name_icon")
+	local bgIndex=self.m_model:getbgIndex()
+	local bg_img = self:findImage("self_node_bg_img")
+	GameUtil:updateResourcesImg(bg_img,"Texture/arena/arena_peak_flag_"..bgIndex)
+	bg_img = self:findImage("BG")
+	GameUtil:updateResourcesImg(bg_img,"Texture/arena/ljsz_zfls_bg"..bgIndex)
+
+	self:setTextByLanKey("limit_text","arena_str_0059")
+	self:setTextByLanKey("timer_times_text2","arena_str_0064")
+end
+
+function M:refreshUI()
+	--self:updateListScroll()
+	self:updateLikeUsers(self.m_model.m_data.like);
+	self:updateTopData()
+	self:updateFirstSpine()
+	--self:updateRaceData();
+	self:updateSelfData()
+	self:refreshRedPoint()
+	local free_time = self.m_model:getFreeTimes()
+	self:setObjectVisible("challenge_btn_anim", free_time > 0)
+	--self:setObjectVisible("max_times_text", free_time <= 0)
+	--local cur_times = self.m_model:getCurTimes()
+	--self:setTextByLanKey("max_times_text",  Language:getTextByKey("tid#limit_2") ..  cur_times .. "/" .. self.m_model:getMaxTimes())
+	self:setTextByLanKey("free_challenge_text", "new_str_0568", free_time)
+	self:setTextByLanKey("room_num_text", tostring(self.m_model.m_data.room_id))
+	local next_rise_arena_base_cfg=ConfigManager:getCfgByName("rise_arena_base")[self.m_model.m_data.rise_id+1]
+	self:setObjectVisible("advance_text",next_rise_arena_base_cfg~=nil)
+	if next_rise_arena_base_cfg~=nil then
+		local next_race_name=Language:getTextByKey(next_rise_arena_base_cfg.name)
+		self:setTextByLanKey("advance_text", "arena_str_0047",self.m_model.m_data.rank_promote,next_race_name)
+	end
+
+	self:updateArenaRewardWeek()
+	self:setTimeText()
+	self:setTimeText2()
+	--快速导航
+	self:setObjectVisible("guide_btn", true)
+	if self.m_model.m_data.show_flag and self.m_model.m_data.show_flag > 0 then
+		self:tipsToSky()
+		self.m_model:resetShowFlag()
+	end
+	local time = self.m_model:getRemainingTime()+5
+	local function tick(event, dt, remaining_time)
+		if remaining_time-5 >=0 then
+			self:setTimeText()
+		end
+		if remaining_time-5 <=0 then
+			self:setTextByLanKey("time_text", "activities_str_0007")
+		end
+		if remaining_time <= 0 then
+			self.m_control:updateMsg(99999)
+		end
+	end
+	EventDispatcher:registerTimeEvent("ArenaRaceTime", tick, 1, time)
+
+	local time2 = self.m_model:getRemainingRefreshChallegeTime()
+	local function tick2(event, dt, remaining_time)
+		--local remaining_time=self.m_model:getRemainingRefreshChallegeTime()
+		--local ft = GameUtil:formatTimeBySecond(remaining_time,999)
+		--self.m_timer_times_text.text = ft
+		if remaining_time<=0 then
+			self.m_control:updateMsg("refresh_ui")
+		end
+		self:setTimeText2()
+	end
+	EventDispatcher:registerTimeEvent("ArenaRaceTime2", tick2, 1, time2)
+
+	local badge_icon=self.race_icon[self.m_model.m_rise_id].badge_icon
+	self:setImg(badge_icon,"arena_ui","badge_img")
+end
+
+function M:updateFirstSpine()
+
+	if self.m_first_hero_sp then
+		local spineName=self.m_model:getFirstSpineName()
+		self:setObjectVisible("first_hero_sp",spineName~=nil)
+		if spineName then
+			GameUtil:updateSpineLoadSet(self.m_first_hero_sp, "RoleSpine/" .. spineName, "idle", 0, true)
+		end
+	end
+end
+
+function M:setTimeText()
+	local time = self.m_model:getRemainingTime()
+	local ft = GameUtil:formatTimeBySecond(time,999)
+	self.m_time_text.text = ft
+end
+
+function M:setTimeText2()
+	if self.m_model.lave_dare_num<self.m_model.dare_num_max then
+		self:setObjectVisible("timer_times",true)
+		local remaining_time=self.m_model:getRemainingRefreshChallegeTime()
+		local ft = GameUtil:formatTimeBySecond(remaining_time,999)
+		self.m_timer_times_text.text = ft
+	else
+		self:setObjectVisible("timer_times",false)
+	end
+
+end
+
+function M:tipsToSky()
+	local tips, title_id,title_des_id = self.m_model:getShowFlagTips()
+	local rank = self.m_model.m_data.rank
+	local title = Language:getTextByKey(title_id)
+	local title_des = "" 
+	if title_des_id ~= "" then
+		title_des = Language:getTextByKey(title_des_id)
+	end
+	self:updateMsg("open_top_tips_pop", { rank = rank, content_des = tips, title = title, title_des = title_des})
+end
+
+function M:updateRankBg()
+	local img_name = {
+		{"a_ljsz_diyiming_di", "a_ljsz_dierming_di", "a_ljsz_disnamin_di"},
+		{"a_wxlj_diyiming_qi", "a_wxlj_dierming_qi", "a_wxlj_disanming_qi"}
+	}
+	
+	for i = 1, 3 do
+		local bg_name = img_name[1][i]
+		local bg_img = self.m_rank_behaviour[i]:FindImage("bg")
+		GameUtil:updateResourcesImg( bg_img, "Texture/arena/" .. bg_name)
+	end
+end
+
+function M:updateLikeUsers( like )
+	local extra_ui_name = ""
+	if self.m_model.m_rise_id == 1 then
+		extra_ui_name = "top_"
+	end
+	for i = 1, 3 do
+		local rank_data = self.m_model:getTopDataByIndex(i);
+		if rank_data ~= nil then
+			if rank_data.user.is_robot == true then
+				LuaBehaviourUtil.setObjectVisible(self.m_rank_behaviour[i],"good"..i.."_bg", false)
+				LuaBehaviourUtil.setObjectVisible(self.m_rank_behaviour[i],extra_ui_name .. "good"..i, false)
+				LuaBehaviourUtil.setObjectVisible(self.m_rank_behaviour[i],"good_num_bg", false)
+			end
+		end
+	end
+	if like then
+		for i, v in ipairs(like) do
+			local rank_data = self.m_model:getRankDataByUid(v);
+			if rank_data ~= nil then
+				local good = self.m_good_list[rank_data.rank]
+				if not IsNull(good) then
+					good:SetActive(false);
+				end
+			end
+		end
+	end
+end
+
+--更新种族信息
+function M:updateRaceData()
+	--种族数据
+	local top_data = self.m_model:getRaceData()
+	local loop_num = 3
+	local extra_ui_name = ""
+	if self.m_model.m_rise_id == 1 then
+		loop_num = 4
+		extra_ui_name = "top_"
+	end
+
+	for i = 1, loop_num do
+		local shili = self:findGameObject(extra_ui_name .. "shili" .. i);
+		shili:SetActive(true);
+		local race_index = i
+		if self.m_model.m_rise_id == 1 then
+			if i == 2 or i == 4 then
+				race_index = 3
+			elseif i == 3 then
+				race_index = 2
+			end
+		end
+		if top_data[race_index] then
+			local race_img_info = GlobalConfig.TYPE_HERO_RACE[top_data[race_index]];
+			LuaBehaviourUtil.setImg(self.m_luaBehaviour, extra_ui_name .. "shili" .. i, race_img_info.arena_icon, "arena_ui")
+		else
+			shili:SetActive(false);
+		end
+	end
+end
+
+function M:updateTopData()
+	local top_data = self.m_model:getTopData()
+	local rank_data = {}
+	for i, v in ipairs(top_data) do
+		rank_data[v.rank] = v;
+	end
+	
+	for i = 1, 3 do
+		if rank_data[i] ~= nil then
+			self:updateRank(self.m_rank_behaviour[i], rank_data[i]);
+		else
+			self:hideRank(self.m_rank_behaviour[i], i)
+		end
+	end
+end
+
+--更新点赞的文本
+function M:updateGoodNumTxt( rank, like )
+	local good_num_txt = self.m_rank_behaviour[rank]:FindText("good_num_txt");
+	good_num_txt.text = like;
+end
+
+
+function M:hideRank( cur_LuaBehaviour, rank )
+	local extra_ui_name = "top_"
+	--if self.m_model.m_rise_id == 1 then
+	--	extra_ui_name = "top_"
+	--end
+	local hero = cur_LuaBehaviour:FindGameObject("hero");
+	hero:SetActive(false);
+	local good = cur_LuaBehaviour:FindGameObject(extra_ui_name .. "good"..rank);
+	good:SetActive(false);
+	local good_num_bg = cur_LuaBehaviour:FindGameObject("good_num_bg");
+	good_num_bg:SetActive(false);
+	local good_num_txt = cur_LuaBehaviour:FindGameObject("good_num_txt");
+	good_num_txt:SetActive(false);
+	
+	local player_name_txt = cur_LuaBehaviour:FindText("player_name");
+	player_name_txt.text = Language:getTextByKey("new_str_0079");
+end
+
+function M:updateRank( cur_LuaBehaviour, rank_data )
+	if cur_LuaBehaviour ~= nil then
+		--玩家名字
+		local player_name_txt = cur_LuaBehaviour:FindText("player_name");
+		player_name_txt.text = rank_data.user.name;
+		--加载spine动画
+		--local hero = cur_LuaBehaviour:FindGameObject("hero")
+		--local cfg = ConfigManager:getPlayerPictureCfg(rank_data.user.avatar);
+		--local spine_name = cfg.hero_spine;
+		--GameUtil:updateSpineLoadSet(hero, "RoleSpine/" .. spine_name, "idle", 0, true)
+		local HeadNode = cur_LuaBehaviour:FindGameObject("HeadNode")
+		GameUtil:setUserAvatar(HeadNode, rank_data.user, nil, nil, {show_flag = true, scale = 0.75})
+		local info_node = cur_LuaBehaviour:FindGameObject("info_node")
+		local title_id = rank_data.user.title
+		if info_node then
+			if title_id and title_id ~= 0 then
+				info_node.transform.anchoredPosition = Vector3.New(0, -16, 0)
+			else
+				info_node.transform.anchoredPosition = Vector3.New(0, 0, 0)
+			end
+		end
+		
+		--点赞次数
+		local good_num_txt = cur_LuaBehaviour:FindText("good_num_txt");
+		good_num_txt.text = rank_data.like;
+	end
+end
+
+
+function M:listHandle(obj, id, data)
+	local luaBehaviour = obj:GetComponent("LuaBehaviour")
+	local rank_text = luaBehaviour:FindText("rank_text")
+	local rank_img = luaBehaviour:FindImage("rank_img")
+	local HeadNode = luaBehaviour:FindGameObject("HeadNode")
+	local name_text = luaBehaviour:FindText("name_text")
+	local score_text = luaBehaviour:FindText("score_text")
+	local grading_text = LuaBehaviourUtil.setTextByLanKey(luaBehaviour, "grading_text", "new_str_0262")
+
+	GameUtil:setUserAvatar(HeadNode,data.user,nil,nil,{show_flag = true, scale = 1.05})
+	local room_id = self.m_model:getRoomId()
+	if room_id == 0 then -- 定级中
+		grading_text.gameObject:SetActive(true)
+		rank_text.gameObject:SetActive(false)
+		rank_img.gameObject:SetActive(false)
+		score_text.transform.parent.gameObject:SetActive(false)
+	else
+		grading_text.gameObject:SetActive(false)
+		if data.rank >= 1 and data.rank <= 3 then
+			rank_text.gameObject:SetActive(false)
+			rank_img.gameObject:SetActive(true)
+			local top_three_item = GlobalConfig.RANK_TOP_THREE_IMG[data.rank]
+			LuaBehaviourUtil.setImg(luaBehaviour,"rank_img", top_three_item.rank, top_three_item.atlas)
+		else
+			rank_text.gameObject:SetActive(true)
+			rank_img.gameObject:SetActive(false)
+			rank_text.text = data.rank
+		end
+		score_text.transform.parent.gameObject:SetActive(true)
+	end
+	name_text.text = Language:getTextByKey("new_str_0752")
+	score_text.text = data.score
+	--local free_time = self.m_model:getFreeTimes()
+	--local free_flag = free_time > 0
+	--local attack_btn_text = LuaBehaviourUtil.setTextByLanKey(luaBehaviour, "attack_btn_text", free_flag and "new_str_0231" or "new_str_0219")
+	--UIUtil.setLocalPosition(attack_btn_text.transform, free_flag and 0 or 15)
+	--LuaBehaviourUtil.setObjectVisible(luaBehaviour, "cost_item_node", not free_flag)
+	--attack_btn_text.gameObject:SetActive(free_flag)
+end
+
+function M:updateSelfData()
+	local luaBehaviour = self.self_arena_node:GetComponent("LuaBehaviour")
+	local rank_text = luaBehaviour:FindText("rank_text")
+	local rank_img = luaBehaviour:FindImage("rank_img")
+	local HeadNode = luaBehaviour:FindGameObject("HeadNode")
+	local name_text = luaBehaviour:FindText("team_name_text")
+	local score_text = luaBehaviour:FindText("score_text")
+	local ItemNode = luaBehaviour:FindGameObject("ItemNode")
+	local grading_text = LuaBehaviourUtil.setTextByLanKey(luaBehaviour, "grading_text", "new_str_0262")
+
+	local user_data = UserDataManager.user_data.user_status
+	GameUtil:setUserAvatar(HeadNode, user_data, nil, nil, {show_flag = true, scale = 1.05})
+	local title_id = user_data.title
+	if title_id and title_id ~= 0 then
+		HeadNode.transform.anchoredPosition = Vector3.New(-14, 200, 0)
+	else
+		HeadNode.transform.anchoredPosition = Vector3.New(-14, 174, 0)
+	end
+	local room_id = self.m_model:getRoomId()
+	--self:setObjectVisible("reward_btn", room_id ~= 0)
+	if room_id == 0 then -- 定级中
+		grading_text.gameObject:SetActive(true)
+		rank_text.gameObject:SetActive(false)
+		rank_img.gameObject:SetActive(false)
+		score_text.text = Language:getTextByKey("new_str_0263")
+	else
+		grading_text.gameObject:SetActive(false)
+		if self.m_model.m_data.rank <= 0 then
+			rank_img.gameObject:SetActive(false)
+			rank_text.text = Language:getTextByKey("new_str_0076")
+		elseif self.m_model.m_data.rank <= 3 then
+			rank_text.gameObject:SetActive(false)
+			rank_img.gameObject:SetActive(true)
+			local top_three_item = GlobalConfig.RANK_TOP_THREE_IMG[self.m_model.m_data.rank]
+			LuaBehaviourUtil.setImg(luaBehaviour,"rank_img", top_three_item.rank, top_three_item.atlas)
+		else
+			rank_text.gameObject:SetActive(true)
+			rank_img.gameObject:SetActive(false)
+			rank_text.text = self.m_model.m_data.rank
+		end
+		score_text.text = self.m_model.m_data.score
+	end
+	local name_key = user_data.name
+	if name_key == nil or name_key == "" then
+		name_key = "new_str_0141"
+	end
+	name_text.text = Language:getTextByKey("new_str_0752")
+	local arena_reward = ConfigManager:getCfgByName("arena_reward")
+	local reward = arena_reward[self.m_model.m_data.rank]
+	if reward == nil then
+		local index = 0
+		for k,v in pairs(arena_reward) do
+			if k <= self.m_model.m_data.rank and k > index then
+				index = k
+			end
+		end
+		reward = arena_reward[index]
+	end
+	-- if reward then
+	-- 	GameUtil:updateItemElement(ItemNode, reward.daily_rewards[1], true, true)
+	-- 	ItemNode.gameObject:SetActive(true)
+	-- else
+	-- 	ItemNode.gameObject:SetActive(false)
+	-- end
+end
+
+function M:refreshRedPoint()
+    local record_flag1 = RedPointUtil:hasRedPointById(131)
+    self:setObjectVisible("record_btn_red_point", record_flag1)
+	UserDataManager:removeRedDotByKey("race_arena_beat")
+	UserDataManager:removeRedDotByKey("race_arena_times")
+end
+
+function M:updateArenaRewardWeek()
+	local box_trans = self.m_box_node.transform
+	UIUtil.destroyAllChild(box_trans)
+	local show_data, cur_num = self.m_model:getArenaRewardWeekData()
+	local width = self.m_box_node_rt.rect.width
+	local max_num = 0
+	local box_num = #show_data
+	if show_data[box_num] then
+		max_num = show_data[box_num].cfg.win_num
+	end
+	max_num = max_num > 0 and max_num or 100
+	self:setTextByLanKey("week_reward_box_text", "new_str_0689", cur_num, max_num)
+	self.m_week_box_reward_slider.value = cur_num/max_num
+	for i=1,box_num do
+		local data = show_data[i]
+		local cfg = data.cfg
+		local task_box = GameUtil:createPrefab("Arena/ArenaPeak/ArenaRewardWeekBox", box_trans)
+		local transform = task_box.transform
+		local luaBehaviour = UIUtil.findLuaBehaviour(transform)
+		UIUtil.setLocalPosition(task_box, width*cfg.win_num/max_num - width*0.5, 0)
+		local function btns(trans,params)
+			if data.status == 2 then -- 可领取
+				self:updateMsg("box_reward", {click_transform = trans, data = data})
+			else
+				self:updateMsg("box_click", {click_transform = trans, data = data})
+			end
+		end
+		UIUtil.setButtonClick(transform, btns, i)
+		local score_text = UIUtil.setText(transform, tostring(cfg.win_num), "score_text")
+		local finish_text = UIUtil.setTextByLanKey(transform,"finish_text", "new_str_0080")
+		score_text.color = data.status == 0 and GlobalConfig.COMMON_COLLOR.COMMON_1 or Color( 255/255, 235/255, 68/255)
+		local box_effect = UIUtil.findRectTransform(transform, "UI_Arena_BX_01")
+		local box_effect2 = UIUtil.findRectTransform(transform, "UI_Arena_BX_02")
+		local box_img = luaBehaviour:FindImage("box_img")
+		--if self.m_model.m_match_type == 1 then
+			if data.status == -1 then
+				LuaBehaviourUtil.setImg(luaBehaviour, "box_img", "a_wxlj_box_open", "arena_ui")
+			else
+				LuaBehaviourUtil.setImg(luaBehaviour, "box_img", "a_wxlj_box_close", "arena_ui")
+			end
+		--else
+		--	LuaBehaviourUtil.setImg(luaBehaviour, "box_img", "a_ljszh_bx", "arena_ui")
+		--end
+		if data.status == 0 then
+			box_img.material = nil
+		elseif data.status == 2 then
+			box_img.material = nil
+		elseif data.status == -1 then
+			--box_img.material = self.m_gray_img.material
+		end
+		LuaBehaviourUtil.setObjectVisible(luaBehaviour, "line_img", i ~= box_num)
+		if box_effect ~= nil then
+			box_effect.gameObject:SetActive(false)
+		end
+		if box_effect2 ~= nil then
+			box_effect2.gameObject:SetActive(false)
+		end
+		LuaBehaviourUtil.setObjectVisible(luaBehaviour, "UI_Arena_BX_02", data.status == 2)
+		if data.status == 2 then
+			--self.m_control:setOnceTimer(0.1, function()
+			--	if not IsNull(task_box) then
+			--		luaBehaviour:RunAnim("UI_TaskBox_BaoXiang_001", nil , 1)
+			--	end
+			--end)
+			if box_effect ~= nil then
+				box_effect.gameObject:SetActive(true)
+			end
+			if box_effect2 ~= nil then
+				box_effect2.gameObject:SetActive(true)
+			end
+		end
+	end
+end
+
+function M:popTipsByType(pop_type)
+	local tips = Language:getTextByKey("new_str_0971")
+	local params =
+	{
+		on_ok_call = function(msg)
+			self:updateMsg("go_to_sky")
+		end,
+		title = Language:getTextByKey("new_str_0970"),
+		no_close_btn = true,
+		text = tips,
+	}
+	static_rootControl:openView("Pops.CommonPop", params, nil, true)
+end
+
+function M:destroy()
+	EventDispatcher:unRegisterEvent("ArenaRaceTime")
+	EventDispatcher:unRegisterEvent("ArenaRaceTime2")
+	if self.m_attr_node then
+		self.m_attr_node:destroy()
+		self.m_attr_node = nil
+	end
+    M.super.destroy(self)
+end
+
+return M

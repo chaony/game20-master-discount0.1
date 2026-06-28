@@ -1,0 +1,185 @@
+--- 逸闻
+local M = class("HeroInfoNode",LikeOO.OOUIbase)
+
+M.m_uiName = "HeroInfo/HeroInfoNode"
+M.m_iphoneXAdapter = true
+
+local BASE_TAB = {
+	{1,2},
+	{3},
+	{6},
+	{7},
+	{8},
+	{9},
+	{10}
+}
+
+function M:onEnter()
+	self.skillImproveGroup = ConfigManager:getCfgByName("skill_improve_group")
+	local gray = self:findImage("gray")
+	self.gray_mat = gray.material
+
+	self.base_obj = self:findGameObject("base_obj")
+	self.base_obj_fitter = self.base_obj:GetComponent("ContentImmediate")
+	self.base_info_content = self:findGameObject("base_info_content")
+	self.anecdote_content = self:findGameObject("anecdote_content")
+
+	self.base_info_show = true
+	self.anecdote = {}
+    self:refreshUI()    
+end
+
+function M:refreshUI()
+	self:setSpine()
+	self:setBaseInfo()
+	self:setDescInfo()
+end
+
+function M:setBaseInfo()
+	local h_cfg = self:getCfgByCid(self.m_model.m_cur_id)
+	for k,v in pairs(BASE_TAB) do
+		local info_bg = self.base_info_content.transform:GetChild(k-1)
+		if info_bg then 
+			local LuaBehaviour = UIUtil.findLuaBehaviour(info_bg)
+			local bg_img = UIUtil.findImage(info_bg)
+			bg_img.enabled = k%2 == 0
+			if LuaBehaviour then
+				--LuaBehaviourUtil.setObjectVisible(LuaBehaviour,"cell_bg", )
+				if #v > 1 then
+					LuaBehaviourUtil.setObjectVisible(LuaBehaviour,"cell_title_2", true)
+					LuaBehaviourUtil.setObjectVisible(LuaBehaviour,"cell_count_2", true)
+					local title1, count1 = self.m_model:getBaseInfoCellByIndex(v[1])
+					LuaBehaviourUtil.setTextByLanKey (LuaBehaviour,"cell_name_1",count1)
+					LuaBehaviourUtil.setTextByLanKey (LuaBehaviour,"cell_title_1",title1)
+					local title2, count2 = self.m_model:getBaseInfoCellByIndex(v[2])
+					LuaBehaviourUtil.setTextByLanKey (LuaBehaviour,"cell_count_2",count2)
+					LuaBehaviourUtil.setTextByLanKey (LuaBehaviour,"cell_title_2",title2)
+				else
+					local title, count = self.m_model:getBaseInfoCellByIndex(v[1])
+					LuaBehaviourUtil.setTextByLanKey (LuaBehaviour,"cell_name_1",count)
+					LuaBehaviourUtil.setTextByLanKey (LuaBehaviour,"cell_title_1",title)
+				end
+			end
+		end
+	end
+    if h_cfg then
+		local num = self.base_info_content.transform.childCount
+		for i=1,num do
+      	  	local info_bg = self.base_info_content.transform:GetChild(i-1)
+			local title, count = self.m_model:getBaseInfoCellByIndex(i)
+			UIUtil.setTextByLanKey(info_bg,"cell_title_text",title)
+			UIUtil.setTextByLanKey(info_bg,"cell_count_text",count)
+		end
+    end
+end
+
+function M:setDescInfo()
+	local num = self.anecdote_content.transform.childCount
+	self.tab_list = {}
+	for i = 1, num do
+		self.anecdote[i] = {}
+		local info_bg = self.anecdote_content.transform:GetChild(i-1)
+		local LuaBehaviour = UIUtil.findLuaBehaviour(info_bg)
+		if LuaBehaviour then
+			local count_text = LuaBehaviourUtil.setTextByLanKey(LuaBehaviour, "hero_info_text", self.m_model:getAncedoteDescByIndex(i))
+			self.anecdote[i]["content"] = LuaBehaviour:FindGameObject("content")
+			self.anecdote[i]["skill"] = LuaBehaviour:FindGameObject("skill"..i.."_btn").transform
+			self.anecdote[i]["show"] = true
+			LuaBehaviourUtil.setTextByLanKey(LuaBehaviour, "cell_info_text",  self.m_model:getAncedotName(i))
+			if self.m_model:checkAncedoteOpenByIndex(i) == true then
+				LuaBehaviourUtil.setObjectVisible(LuaBehaviour,"lock", false)
+				LuaBehaviourUtil.setObjectVisible(LuaBehaviour,"content", true)
+				local anecdote_skill = self.m_model:getAncedoteSkillByIndex(i)
+				if anecdote_skill ~= 0 then
+					self:setSkillInfo(LuaBehaviour, anecdote_skill)
+				else
+					LuaBehaviourUtil.setObjectVisible(LuaBehaviour,"skill", false)
+				end
+			else
+				LuaBehaviourUtil.setObjectVisible(LuaBehaviour,"lock", true)
+				LuaBehaviourUtil.setObjectVisible(LuaBehaviour,"content", false)
+				--LuaBehaviourUtil.setTextByLanKey(LuaBehaviour, "hero_info_text", self.m_model:getEvoName(i))
+			end
+			local RGBA = Color.New(245/255, 209/255, 129/255)
+			local RGBB = Color.New(0.8, 0.8, 0.8)
+			count_text.color = self.m_model:checkAncedoteOpenByIndex(i) == true and  RGBA or RGBB
+		end
+		table.insert(self.tab_list, info_bg)
+	end
+end
+function M:setSkillInfo(LuaBehaviour, anecdote_skill)
+	LuaBehaviourUtil.setObjectVisible(LuaBehaviour,"skill", true)
+
+	local skill = self.skillImproveGroup[anecdote_skill]
+	LuaBehaviourUtil.setTextByLanKey(LuaBehaviour, "skill_name",  skill.name)
+	local icon = LuaBehaviourUtil.setImg(LuaBehaviour, "skillIcon",  "a_ui_currency_jineng_linshi", "hero_ui")
+	
+	local skill_improve = self.m_model:getSKillImprove()
+	if skill_improve ~= nil and table.indexof(skill_improve.groups, anecdote_skill) ~= false then
+		LuaBehaviourUtil.setObjectVisible(LuaBehaviour,"goto_btn", false)
+		LuaBehaviourUtil.setObjectVisible(LuaBehaviour,"skill_lock_text", false)
+		if skill_improve.cur_id == anecdote_skill then
+			icon.material = nil
+			LuaBehaviourUtil.setTextByLanKey(LuaBehaviour, "skill_state",  "anecdote_selected")
+		else
+			icon.material = self.gray_mat
+			LuaBehaviourUtil.setTextByLanKey(LuaBehaviour, "skill_state",  "anecdote_no_select")
+		end
+	else
+		icon.material = self.gray_mat
+		LuaBehaviourUtil.setTextByLanKey(LuaBehaviour, "skill_state",  "anecdote_lock")
+		LuaBehaviourUtil.setObjectVisible(LuaBehaviour,"goto_btn", true)
+		LuaBehaviourUtil.setObjectVisible(LuaBehaviour,"skill_lock_text", true)
+	end
+end
+--[[
+    @desc: 英雄动画
+]]
+function M:setSpine()
+	local icon = self.m_model:getHeroBigAnim()
+	if self.cacheSpineName == icon then
+		return
+	else
+		self.cacheSpineName = icon	
+	end
+	local pos_x = 0
+	local pos_y = -142
+	local play_img = self:findGameObject("hero_spine")
+ 	local sg = play_img:GetComponent("SkeletonGraphic")
+	local hehe = ResourceUtil:GetSk(self.cacheSpineName, "rolespine_"..string.lower(self.cacheSpineName))
+	sg.skeletonDataAsset = hehe
+	sg:Initialize(true)
+	local linshi_pos =self.m_model:getSpinePos()
+	pos_x = pos_x + linshi_pos[1]
+	pos_y = pos_y + linshi_pos[2]
+	UIUtil.setLocalPosition(play_img.transform,pos_x, pos_y, 0)
+end
+
+function M:getCfgByCid(id)
+	return UserDataManager.hero_data:getHeroConfigByCid(id)
+end
+
+function M:showBaseInfo()
+	self.base_info_show = self.base_info_show == false
+	self.base_info_content.gameObject:SetActive(self.base_info_show)
+end
+
+function M:anecdoteOnClick(index)
+	if self.m_model:checkAncedoteOpenByIndex(index) == true then
+		self.anecdote[index]["show"] = self.anecdote[index]["show"] == false
+		self.anecdote[index]["content"]:SetActive(self.anecdote[index]["show"])
+		--触发刷新自适应大小
+		self.base_obj_fitter:ForceRefreshSize()
+	end
+end
+
+function M:skillOnClick(index)
+	local anecdote_skill = self.m_model:getAncedoteSkillByIndex(index)
+	if anecdote_skill ~= 0 then
+		--local skill = self.skillImproveGroup[anecdote_skill]
+		self.m_control:openView("Pops.SkillImprovePop",{ skill_improve = anecdote_skill, click_transform = self.anecdote[index]["skill"] })
+
+	end
+end
+
+return M
