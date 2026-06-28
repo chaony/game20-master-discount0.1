@@ -1,0 +1,311 @@
+return{
+["attack1"] = 
+{
+     ["animName"] = "attack1",
+     ["animLength"] = 1364,
+     ["isLoop"] = false,
+     ["events"] = 
+     {
+     },
+},
+
+["battle_idle"] = 
+{
+     ["animName"] = "battle_idle",
+     ["animLength"] = 1364,
+     ["isLoop"] = true,
+     ["events"] = 
+     {
+     },
+},
+
+["debuff1"] = 
+{
+     ["animName"] = "debuff1",
+     ["animLength"] = 1705,
+     ["isLoop"] = true,
+     ["events"] = 
+     {
+     },
+},
+
+["die"] = 
+{
+     ["animName"] = "die",
+     ["animLength"] = 2798,
+     ["isLoop"] = false,
+     ["events"] = 
+     {
+     },
+},
+
+["hit1_1"] = 
+{
+     ["animName"] = "hit1_1",
+     ["animLength"] = 272,
+     ["isLoop"] = false,
+     ["events"] = 
+     {
+     },
+},
+
+["hit1_1end"] = 
+{
+     ["animName"] = "hit1_1end",
+     ["animLength"] = 477,
+     ["isLoop"] = false,
+     ["events"] = 
+     {
+     },
+},
+
+["hit1_1loop"] = 
+{
+     ["animName"] = "hit1_1loop",
+     ["animLength"] = 340,
+     ["isLoop"] = true,
+     ["events"] = 
+     {
+     },
+},
+
+["hit2_1"] = 
+{
+     ["animName"] = "hit2_1",
+     ["animLength"] = 579,
+     ["isLoop"] = false,
+     ["events"] = 
+     {
+     },
+},
+
+["hit2_flyend"] = 
+{
+     ["animName"] = "hit2_flyend",
+     ["animLength"] = 579,
+     ["isLoop"] = false,
+     ["events"] = 
+     {
+     },
+},
+
+["hit2_spin"] = 
+{
+     ["animName"] = "hit2_spin",
+     ["animLength"] = 340,
+     ["isLoop"] = true,
+     ["events"] = 
+     {
+     },
+},
+
+["hit3"] = 
+{
+     ["animName"] = "hit3",
+     ["animLength"] = 852,
+     ["isLoop"] = false,
+     ["events"] = 
+     {
+     },
+},
+
+["idle"] = 
+{
+     ["animName"] = "idle",
+     ["animLength"] = 1364,
+     ["isLoop"] = true,
+     ["events"] = 
+     {
+     },
+},
+
+["jumpin2"] = 
+{
+     ["animName"] = "jumpin2",
+     ["animLength"] = 1364,
+     ["isLoop"] = false,
+     ["events"] = 
+     {
+     },
+},
+
+["run"] = 
+{
+     ["animName"] = "run",
+     ["animLength"] = 819,
+     ["isLoop"] = true,
+     ["events"] = 
+     {
+     },
+},
+
+["skill1"] = 
+{
+     ["animName"] = "skill1",
+     ["animLength"] = 2048,
+     ["isLoop"] = false,
+     ["events"] = 
+     {
+          ["level1"] = 
+          {
+              [1] = 
+              {
+                  ["eventKey"] = 1,
+                  ["eventName"] = "AttackMove",
+                  ["triggerTime"] = 614,
+                  ["eventId"] = 1024,
+                  ["moveType"] = "MoveBlink",
+                  ["isSelectTarget"] = false,
+                  ["count"] = 
+                  {
+                      ["count"] = "one",
+                      ["camp"] = "enemy",
+                      ["posIndex"] = "oppositeTarget",
+                      ["priority"] = true,
+                      ["ignoreSummon"] = false,
+                      ["targetNoRepeat"] = false,
+                      ["campRace"] = "not",
+                      ["gender"] = "all",
+                      ["pos"] = "not",
+                      ["profession"] = "all",
+                      ["area"] = "all",
+                      ["areaWidth"] = 0,
+                      ["areaHeight"] = 0,
+                      ["areaAngle"] = 0,
+                      ["areaRadius"] = 0,
+                      ["forceSelect"] = false,
+                      ["selectLast"] = false,
+                      ["isFixPoint"] = false,
+                      ["useSelf"] = false,
+                      ["fixpoint"] = "enemyBackCenter"
+                  },
+                  ["moveOrder"] = "order",
+                  ["isTargetPoint"] = false,
+                  ["selectDis"] = "number",
+                  ["targetPos"] = "back",
+                  ["useSceneDir"] = false,
+                  ["faceToTarget"] = true,
+                  ["isBackMove"] = false,
+                  ["isAnewEnemy"] = false,
+                  ["isDirZero"] = false,
+                  ["distance"] = 1024,
+                  ["needBack"] = false,
+                  ["dirToBoss"] = false,
+                  ["curveMove"] = 
+                  {
+                      ["move"] = false,
+
+                  },
+                  ["ignoreArea"] = false,
+                  ["effect"] = "nil",
+                  ["speed"] = 0,
+                  ["endAnimName"] = "nil",
+                  ["bufid"] = 0,
+              },
+
+          },
+     },
+},
+
+["skill2"] = 
+{
+     ["animName"] = "skill2",
+     ["animLength"] = 1705,
+     ["isLoop"] = false,
+     ["events"] = 
+     {
+     },
+},
+
+["skill3"] = 
+{
+     ["animName"] = "skill3",
+     ["animLength"] = 3208,
+     ["isLoop"] = false,
+     ["events"] = 
+     {
+          ["level1"] = 
+          {
+              [1] = 
+              {
+                  ["eventKey"] = 1,
+                  ["eventName"] = "AttackMove",
+                  ["triggerTime"] = 1126,
+                  ["eventId"] = 1024,
+                  ["moveType"] = "MoveBlink",
+                  ["isSelectTarget"] = false,
+                  ["count"] = 
+                  {
+                      ["count"] = "one",
+                      ["camp"] = "enemy",
+                      ["posIndex"] = "backrow",
+                      ["priority"] = true,
+                      ["ignoreSummon"] = true,
+                      ["targetNoRepeat"] = false,
+                      ["campRace"] = "not",
+                      ["gender"] = "all",
+                      ["pos"] = "bloodLeast",
+                      ["profession"] = "all",
+                      ["area"] = "all",
+                      ["areaWidth"] = 0,
+                      ["areaHeight"] = 0,
+                      ["areaAngle"] = 0,
+                      ["areaRadius"] = 0,
+                      ["forceSelect"] = false,
+                      ["selectLast"] = false,
+                      ["isFixPoint"] = false,
+                      ["useSelf"] = false,
+                      ["fixpoint"] = "enemyBackCenter"
+                  },
+                  ["moveOrder"] = "order",
+                  ["isTargetPoint"] = false,
+                  ["selectDis"] = "number",
+                  ["targetPos"] = "back",
+                  ["useSceneDir"] = false,
+                  ["faceToTarget"] = true,
+                  ["isBackMove"] = false,
+                  ["isAnewEnemy"] = false,
+                  ["isDirZero"] = false,
+                  ["distance"] = 2048,
+                  ["needBack"] = false,
+                  ["dirToBoss"] = false,
+                  ["curveMove"] = 
+                  {
+                      ["move"] = true,
+                      ["curveMoveType"] = "line",
+                      ["curveMoveDistance"] = 15360,
+                      ["curveMoveTime"] = 102,
+                      ["curveDistanceType"] = "forceDistance"
+                  },
+                  ["ignoreArea"] = false,
+                  ["effect"] = "nil",
+                  ["speed"] = 0,
+                  ["endAnimName"] = "nil",
+                  ["bufid"] = 0,
+              },
+
+          },
+     },
+},
+
+["skill3_1"] = 
+{
+     ["animName"] = "skill3_1",
+     ["animLength"] = 1945,
+     ["isLoop"] = false,
+     ["events"] = 
+     {
+     },
+},
+
+["common"] = 
+{
+     ["animName"] = "common",
+     ["animLength"] = 0,
+     ["isLoop"] = false,
+     ["events"] = 
+     {
+     },
+},
+
+}

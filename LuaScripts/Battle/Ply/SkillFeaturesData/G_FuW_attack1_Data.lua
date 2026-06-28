@@ -1,0 +1,43 @@
+return
+{
+	["fixValue"] = 1024,
+	["summonName"] = 1081,
+	["targetPos"] = "back",
+	["offset"] = 
+	{
+		["y"] = 0,
+		["z"] = 0,
+		["x"] = 2048,
+	},
+	["aiType"] = "command",
+	["distance"] = 2048,
+	["is_border"] = false,
+	["is_sign"] = false,
+	["alwaysfollow"] = true,
+	["id"] = 1,
+	["follow"] = true,
+	["hpType"] = "hpBase",
+	["count"] = 
+	{
+		["ignoreSummon"] = false,
+		["targetNoRepeat"] = false,
+		["isFixPoint"] = false,
+		["selectLast"] = false,
+		["areaRadius"] = 0,
+		["forceSelect"] = false,
+		["area"] = "all",
+		["areaWidth"] = 0,
+		["campRace"] = "not",
+		["areaHeight"] = 0,
+		["profession"] = "all",
+		["areaAngle"] = 0,
+		["fixpoint"] = "enemyBackCenter",
+		["pos"] = "not",
+		["priority"] = false,
+		["count"] = "one",
+		["camp"] = "self",
+		["posIndex"] = "all",
+	},
+	["percentValue"] = 0,
+	["summonType"] = "special",
+}

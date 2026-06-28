@@ -1,0 +1,81 @@
+--移花 skill1 战斗中 移花每攻击8次会为一名随机的友军施加护盾，抵消一次即将到来的伤害
+---@class W_YiH_skill1_Model : SkillFeatures_Model @
+---@field super SkillFeatures_Model @SkillFeatures_Model
+local M = class("W_YiH_skill1_Model", SkillFeatures_Model)
+
+
+--function M:init(ply, skill,className)
+--    M.super.init(self, ply, skill,className)
+--        self.max_count = self:getParam(1)
+--
+--    	EventDispatcher:registerEvent("SkillEnter", {self,self.SkillEnterHandler})
+--        EventDispatcher:registerEvent("injure", {self,self.injureHandler})
+--end
+
+--function M:spawn()
+--    M.super.spawn(self)
+--    
+--end
+--
+--
+--function M:canUse()
+--    return self.skill_start
+--end
+--
+--
+----技能释放
+--function M:skillStart()
+--    self.skill_start = false
+--end
+--
+----技能结束
+--function M:skillEnd()
+--	self.skill_start = false
+--end
+--
+--
+----技能释放
+--function M:SkillEnterHandler( eventName, data )
+--    local ply = data["player"]
+--    local config = data["skillConfig"]
+--
+--    if ply == self.player and config ~= nil and  config.anim_name == "attack1" then
+--    	if self.skill_start == false then
+--    		self.atk_count = self.atk_count + 1
+--	    	if self.atk_count >= self.max_count then
+--	    		self.skill_start = true
+--                self.atk_count = 0
+--	    	end
+--    	end
+--    	
+--		
+--    end
+--end
+--
+--function M:injureHandler(eventName, data)
+--
+--    local victim = data["victim"]
+--
+--    if victim ~= nil and victim:equal(self.player) == false then
+--        if victim.camp == self.player.camp then
+--            local YiH_skill1 = victim.bufMgr:findBufByTag("W_YiH_skill1")
+--            if table.nums(YiH_skill1) > 0 then
+--                data["wantdata"]["damage"] = 0
+--                victim.bufMgr:removeBufByTag("W_YiH_skill1")
+--            end
+--        end
+--    end
+--end
+--
+--
+--
+--
+--
+--function M:destroy()
+--    M.super.destroy(self)
+--    EventDispatcher:unRegisterEvent("SkillEnter", {self,self.SkillEnterHandler})
+--    EventDispatcher:unRegisterEvent("injure", {self,self.injureHandler})
+--end
+
+
+return M
