@@ -20,7 +20,7 @@ function M:init(dataName, type)
     --1 表示 六边形
     self.type = type;
     self.dataName = dataName;
-    self.openList = Battle.List.new();
+    self.openList = require("Battle.Data.BinaryHeap").new();  -- 使用二叉堆替代 List
     self.closeList = Battle.List.new();
     --场景数据
     self.sceneData = require("Battle.Data."..dataName).new();
@@ -39,69 +39,82 @@ function M:destroy()
     end
 end
 
+-- 获取 openList 中 F 值最小的节点
+function M:getMinFNode()
+    local minNode = nil;
+    local minF = nil;
+    for i = 0, self.openList.Count - 1 do
+        local node = self.openList:get(i);
+        local f = node.G + node.H;
+        if minF == nil or f < minF then
+            minF = f;
+            minNode = node;
+        end
+    end
+    return minNode;
+end
+
 function M:findPath( start, target )
     self.sceneData:reset();
     local now = start;
     self.openList:add(now);
     local finded = false;
     while finded == false do
-        --将当前节点从openList中移除 
-        self.openList:remove(now); 
+        --将当前节点从openList中移除并获取F值最小的节点
+        now = self.openList:popMin();
+        if now == nil then
+            break;
+        end
         --将当前节点添加到关闭列表中
-        self.closeList:add(now);  
-        --获取当前六边形的相邻六边形  
+        self.closeList:add(now);
+        --获取当前六边形的相邻六边形
         local neighbors = self:getGroundGrid(now);
         for i=1,neighbors.Count do
             local neighbor = neighbors:get(i-1)
             if neighbor ~= nil then
                 if neighbor:equip( target ) then
-                    --找到目标节点  
+                    --找到目标节点
                     finded = true;
                     neighbor.parent = now;
                 end
                 if self.closeList:contains(neighbor) then
-                    --在关闭列表里  
+                    --在关闭列表里
                     --Logger.log("已在关闭列表");
                 elseif neighbor.IsVisi == false then
-                    --Logger.log("无法通过");  
+                    --Logger.log("无法通过");
                 else
-                    --该节点已经在开启列表里  
+                    --该节点已经在开启列表里
                     if self.openList:contains(neighbor) then
-                        --print("已在开启列表，判断是否更改父节点");  
-                        --计算假设从当前节点进入，该节点的g估值  
+                        --print("已在开启列表，判断是否更改父节点");
+                        --计算假设从当前节点进入，该节点的g估值
                         local assueGValue = 1 + now.G;
                         if assueGValue < neighbor.G then
-                            --假设的g估值小于于原来的g估值  
-                            self.openList:remove(neighbor);
-                            --重新排序该节点在openList的位置  
+                            --假设的g估值小于于原来的g估值
+                            --重新设置g估值，并通过update重新调整堆
                             neighbor.G = assueGValue;
-                            --从新设置g估值  
-                            --从新排序openList。
-                            self.openList:add(neighbor);  
+                            --从新排序openList（二叉堆的update会重新调整）
+                            self.openList:update(neighbor);
                         end
                     else
-                        --没有在开启列表里  
-                        --print("不在开启列表，添加");  
-                        --计算好他的h估值 
-                        local h = math.min( math.abs(neighbor.index_pos.x - target.index_pos.x), math.abs(neighbor.index_pos.y - math.abs(target.index_pos.y)) )
+                        --没有在开启列表里
+                        --print("不在开启列表，添加");
+                        --计算好他的h估值 (曼哈顿距离)
+                        local h = math.abs(neighbor.index_pos.x - target.index_pos.x) + math.abs(neighbor.index_pos.y - target.index_pos.y)
 
                         neighbor.H = h;
-                        --计算该节点的g估值（到当前节点的g估值加上当前节点的g估值） 
-                        neighbor.G = 1 + now.G; 
-                        --添加到开启列表里  
+                        --计算该节点的g估值（到当前节点的g估值加上当前节点的g估值）
+                        neighbor.G = 1 + now.G;
+                        --添加到开启列表里
                         self.openList:add(neighbor);
                         --将当前节点设置为该节点的父节点
-                        neighbor.parent = now;  
+                        neighbor.parent = now;
                     end
                 end
-            end 
+            end
         end
 
-        if self.openList.Count <= 0 then
+        if self.openList:isEmpty() then
             break;
-        else
-            --得到f估值最低的节点设置为当前节点  
-            now = self.openList:get(0);
         end
     end
 
